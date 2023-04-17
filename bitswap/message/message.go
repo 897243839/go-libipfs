@@ -3,10 +3,10 @@ package message
 import (
 	"encoding/binary"
 	"errors"
-	"io"
-
+	hc "github.com/897243839/HcdComp"
 	"github.com/ipfs/go-libipfs/bitswap/client/wantlist"
 	pb "github.com/ipfs/go-libipfs/bitswap/message/pb"
+	"io"
 
 	cid "github.com/ipfs/go-cid"
 	blocks "github.com/ipfs/go-libipfs/blocks"
@@ -225,7 +225,8 @@ func newMessageFromProto(pbm pb.Message) (BitSwapMessage, error) {
 		//data:=Zlib_decompress(b.GetData())
 		// 判断使用的压缩算法类型
 		// 根据压缩算法类型进行解压缩
-		data := Decompress(b.GetData(), GetCompressorType(b.GetData()))
+		data := b.GetData()
+		data = hc.Decompress(data, hc.GetCompressorType(data))
 		c, err := pref.Sum(data)
 		if err != nil {
 			return nil, err

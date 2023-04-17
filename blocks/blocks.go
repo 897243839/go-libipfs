@@ -11,7 +11,6 @@ import (
 	dshelp "github.com/ipfs/go-ipfs-ds-help"
 	u "github.com/ipfs/go-ipfs-util"
 	mh "github.com/multiformats/go-multihash"
-	"time"
 )
 
 // ErrWrongHash is returned when the Cid of a block is not the expected
@@ -41,17 +40,9 @@ func NewBlock(data []byte) *BasicBlock {
 	return &BasicBlock{data: data, cid: cid.NewCidV0(u.Hash(data))}
 }
 func AutoHC(data []byte, c cid.Cid) []byte {
-	//start := time.Now().UnixNano()
 	key := dshelp.MultihashToDsKey(c.Hash()).String()[1:]
-	startTime3 := time.Now().UnixNano()
 	tp := hc.GetCompressorType(data)
-	endTime3 := time.Now().UnixNano()
-	dur3 := endTime3 - startTime3
-	println("gettype-time:", dur3)
-	//println(tp)
 	if tp != hc.UnknownCompressor {
-		println("1-ZLIB", tp)
-		startTime1 := time.Now().UnixNano()
 		data = hc.Decompress(data, tp)
 		v, ok := hc.MapLit.Get(key)
 		if !ok {
@@ -65,12 +56,8 @@ func AutoHC(data []byte, c cid.Cid) []byte {
 			v += 1
 			hc.MapLit.Set(key, v)
 		}
-		endTime1 := time.Now().UnixNano()
-		dur1 := endTime1 - startTime1
-		println("mapcool-time:", dur1)
 		return data
 	} else {
-		startTime := time.Now().UnixNano()
 		v, ok := hc.Maphot.Get(key)
 		if !ok {
 			hc.Maphot.Set(key, 1)
@@ -80,15 +67,7 @@ func AutoHC(data []byte, c cid.Cid) []byte {
 			v += 1
 			hc.Maphot.Set(key, v)
 		}
-		endTime := time.Now().UnixNano()
-		dur := endTime - startTime
-		println("maphot-time:", dur)
-		println("0-ipfs", tp)
 	}
-	//endT := time.Now().UnixNano()
-	//durt := endT - start
-	//println("sum-time:", durt)
-	//println("0-ipfs", tp)
 	return data
 }
 
